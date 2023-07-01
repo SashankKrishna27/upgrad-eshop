@@ -1,0 +1,19 @@
+.no-account-text {
+    font-size: 13px;
+    color: navy;
+    text-decoration: underline;
+    margin-top: 0.5rem;
+    cursor: pointer;
+}
+
+.copyright-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    margin-top: 2rem;
+}
+
+.copyright-text svg {
+    padding: 0px 0.25rem;
+}
