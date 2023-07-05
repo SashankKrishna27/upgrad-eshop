@@ -6,6 +6,9 @@ import StepLabel from '@mui/material/StepLabel';
 import TextField from '@mui/material/TextField';
 import ProductInfo from '../productInfo/productInfo';
 import { Button, Typography } from '@mui/material';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
+import { useNavigate } from "react-router-dom";
 import '../order/order.css';
 
 const steps = ['Items', 'Select Address', 'Confirm Order'];
@@ -18,7 +21,11 @@ export default function Order() {
   const [state, setState] = React.useState('');
   const [landMark, setLandmark] = React.useState('');
   const [zipCode, setZipCode] = React.useState('');
-
+  const Alert = React.forwardRef(function Alert(props, ref) {
+    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+  });
+  const navigate = useNavigate();
+  const [showConfirmationSnackbar, setShowConfirmationSnackbar] = React.useState(false);
   const changeStep = (increment) => {
     if (increment) {
       setActiveStep(activeStep + 1);
@@ -26,6 +33,14 @@ export default function Order() {
       setActiveStep(activeStep - 1);
     }
   };
+
+  const placeOrder = () => {
+    setShowConfirmationSnackbar(true);
+    setTimeout(() => {
+      navigate('/products');
+    }, 1000);
+  }
+
 
   return (
     <>
@@ -127,9 +142,14 @@ export default function Order() {
             }
             <div className='buttons'>
               {activeStep !== 0 ? <Button variant='text' sx={{ color: '#3f51b5', mr: 1 }} onClick={() => changeStep()}>Back</Button> : ''}
-              {activeStep !== steps.length - 1 ? <Button variant='contained' sx={{ backgroundColor: '#3f51b5' }} onClick={() => changeStep(true)}>NEXT</Button> : ''}
+              {activeStep !== steps.length - 1 ? <Button variant='contained' sx={{ backgroundColor: '#3f51b5' }} onClick={() => changeStep(true)}>NEXT</Button> : <Button variant='contained' sx={{ backgroundColor: '#3f51b5' }} onClick={() => placeOrder()}>PLACE ORDER</Button>}
             </div>
           </div>
+          <Snackbar open={showConfirmationSnackbar} autoHideDuration={1000}>
+            <Alert severity="success" sx={{ width: '100%' }}>
+              Order Placed Successfully
+            </Alert>
+          </Snackbar>
         </Box>
       </div>
     </>
