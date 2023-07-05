@@ -10,51 +10,61 @@ import IconButton from "@mui/material/IconButton";
 import InputBase from "@mui/material/InputBase";
 import SearchIcon from "@mui/icons-material/Search";
 import CartIcon from "@mui/icons-material/ShoppingCart";
+import store from "../../reducers/store";
 import "../header/header.css";
 
-export default function Header() {
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
-  const [isAdmin, setIsAdmin] = React.useState(true);
+const Search = styled("div")(({ theme }) => ({
+  position: "relative",
+  borderRadius: theme.shape.borderRadius,
+  backgroundColor: alpha(theme.palette.common.white, 0.15),
+  "&:hover": {
+    backgroundColor: alpha(theme.palette.common.white, 0.25),
+  },
+  marginRight: theme.spacing(2),
+  marginLeft: 0,
+  width: "100%",
+  [theme.breakpoints.up("sm")]: {
+    marginLeft: theme.spacing(3),
+    width: "auto",
+  },
+}));
 
-  const Search = styled("div")(({ theme }) => ({
-    position: "relative",
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: alpha(theme.palette.common.white, 0.15),
-    "&:hover": {
-      backgroundColor: alpha(theme.palette.common.white, 0.25),
-    },
-    marginRight: theme.spacing(2),
-    marginLeft: 0,
+const SearchIconWrapper = styled("div")(({ theme }) => ({
+  padding: theme.spacing(0, 2),
+  height: "100%",
+  position: "absolute",
+  pointerEvents: "none",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+}));
+
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
+  color: "inherit",
+  "& .MuiInputBase-input": {
+    padding: theme.spacing(1, 1, 1, 0),
+    // vertical padding + font size from searchIcon
+    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+    transition: theme.transitions.create("width"),
     width: "100%",
-    [theme.breakpoints.up("sm")]: {
-      marginLeft: theme.spacing(3),
-      width: "auto",
+    [theme.breakpoints.up("md")]: {
+      width: "35ch",
     },
-  }));
+  },
+}));
 
-  const SearchIconWrapper = styled("div")(({ theme }) => ({
-    padding: theme.spacing(0, 2),
-    height: "100%",
-    position: "absolute",
-    pointerEvents: "none",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  }));
+const handleRoute = (route) => {
+  if (route === "signin") localStorage.removeItem("eshop_user");
+};
 
-  const StyledInputBase = styled(InputBase)(({ theme }) => ({
-    color: "inherit",
-    "& .MuiInputBase-input": {
-      padding: theme.spacing(1, 1, 1, 0),
-      // vertical padding + font size from searchIcon
-      paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-      transition: theme.transitions.create("width"),
-      width: "100%",
-      [theme.breakpoints.up("md")]: {
-        width: "20ch",
-      },
-    },
-  }));
+const handleSearch = (value) => {
+  store.dispatch({ type: "searchString", value: value });
+};
+
+export default function Header() {
+  const user = localStorage.getItem("eshop_user");
+  const [isLoggedIn, setIsLoggedIn] = React.useState(user);
+  const [isAdmin, setIsAdmin] = React.useState(false);
 
   const LinkStyles = {
     color: "#FFF",
@@ -76,7 +86,7 @@ export default function Header() {
               <CartIcon />
             </IconButton>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              upGrad E-Shop
+              Upgrad E-Shop
             </Typography>
             {isLoggedIn ? (
               <>
@@ -85,8 +95,13 @@ export default function Header() {
                     <SearchIcon />
                   </SearchIconWrapper>
                   <StyledInputBase
+                    id="input-with-icon-textfield"
+                    label="TextField"
+                    variant="standard"
                     placeholder="Search…"
                     inputProps={{ "aria-label": "search" }}
+                    value={store.searchString}
+                    onChange={(e) => handleSearch(e.target.value)}
                   />
                 </Search>
                 <Box sx={{ flexGrow: 1 }} />
@@ -96,7 +111,11 @@ export default function Header() {
             )}
             {isLoggedIn ? (
               <>
-                <Link href="/products" sx={{ mr: 2, ...LinkStyles }}>
+                <Link
+                  href="/products"
+                  sx={{ mr: 2, ...LinkStyles }}
+                  onClick={() => handleRoute("products")}
+                >
                   Home
                 </Link>
                 {isAdmin ? (
@@ -104,16 +123,29 @@ export default function Header() {
                 ) : (
                   ""
                 )}
-                <Button variant="contained" sx={{ backgroundColor: "#f50157" }}>
+                <Button
+                  href="/signin"
+                  variant="contained"
+                  sx={{ backgroundColor: "#f50157" }}
+                  onClick={() => handleRoute("signin")}
+                >
                   Logout
                 </Button>
               </>
             ) : (
               <>
-                <Link href="/signin" sx={{ mr: 2, ...LinkStyles }}>
+                <Link
+                  href="/signin"
+                  sx={{ mr: 2, ...LinkStyles }}
+                  onClick={() => handleRoute("signin")}
+                >
                   Login
                 </Link>
-                <Link href="/signup" sx={LinkStyles}>
+                <Link
+                  href="/signup"
+                  sx={LinkStyles}
+                  onClick={() => handleRoute("signup")}
+                >
                   Signup
                 </Link>
               </>

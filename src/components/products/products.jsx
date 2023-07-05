@@ -17,26 +17,36 @@ import {
   sortOrders,
   categories as categoryList,
 } from "../../assets/util";
+import store from "../../reducers/store";
 import "../products/products.css";
 
 export default function Products() {
   console.log(products);
   const [category, setCategory] = React.useState(-1);
   const [sortBy, setSortBy] = React.useState(-1);
-  const [productsList, setProductsList] = React.useState(products);
   const [categories, setCategories] = React.useState(categoryList);
   const [sortingOrder, setSortingOrder] = React.useState(sortOrders);
+  const [allProducts, setAllProducts] = React.useState(products);
 
+  store.subscribe(() => {
+    const storeState = store.getState();
+    const searchString = storeState.searchString;
+    let newProductsList = JSON.parse(JSON.stringify(products));
+    newProductsList = newProductsList.filter((product) =>
+      product.name.toUpperCase().includes(searchString.toUpperCase())
+    );
+    setAllProducts(newProductsList);
+  });
   const handleCategoryChange = (event, newCategory) => {
     setCategory(newCategory);
     setTimeout(() => {
       if (newCategory === -1) {
-        setProductsList(products);
+        setAllProducts(products);
       } else {
         const newProductsList = products.filter(
           (item) => item.categoryCodeId === newCategory
         );
-        setProductsList(newProductsList);
+        setAllProducts(newProductsList);
       }
     });
   };
@@ -47,7 +57,7 @@ export default function Products() {
     setCategory(-1);
     setTimeout(() => {
       if (newSortBy === -1) {
-        setProductsList(products);
+        setAllProducts(allProducts);
       } else {
         let newProductsList = JSON.parse(JSON.stringify(products));
         switch (newSortBy) {
@@ -69,9 +79,17 @@ export default function Products() {
             break;
         }
         console.log(newProductsList);
-        setProductsList(newProductsList);
+        setAllProducts(newProductsList);
       }
     });
+  };
+
+  const handleNavigateToProductInfoPage = (product) => {
+    const category = categories?.find(
+      (item) => item?.id === product?.categoryCodeId
+    );
+    product.category = category;
+    localStorage.setItem("product_info", JSON.stringify(product));
   };
 
   return (
@@ -118,7 +136,7 @@ export default function Products() {
             </Box>
           </div>
           <div className="products">
-            {productsList.map((product, index) => {
+            {allProducts.map((product, index) => {
               return (
                 <Card key={index} sx={{ maxWidth: 345 }}>
                   <CardMedia
@@ -147,6 +165,10 @@ export default function Products() {
                       size="small"
                       variant="contained"
                       sx={{ backgroundColor: "#3f51b5" }}
+                      href={"/productInfo/" + product.categoryCodeId}
+                      onClick={function () {
+                        handleNavigateToProductInfoPage(product);
+                      }}
                     >
                       Buy
                     </Button>
